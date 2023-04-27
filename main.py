@@ -1,4 +1,4 @@
-import requests
+import requests as requests
 from pprint import pprint
 
 
@@ -24,31 +24,39 @@ class YaUploader:
         requests.put(href, data=open(name_of_file, 'rb'))
 
 
-if __name__ == 'main':
-    token = ''
+if __name__ == '__main__':
+    token = 'Впишите свой токен я Яндекс Полигона'
     YaUploader = YaUploader(token)
     with open('token.txt', 'r') as f:
         VK_token = f.read().strip()
-        URL = 'https://api.vk.com/method/photos.get'
-        params = {
-            'owner_id': '273656415',
-            'album_id': 'profile',
-            'extended': 'likes',
-            'access_token': VK_token,
-            'v': '5.131'
-        }
-        res = requests.get(URL, params=params).json()
-        photos = []
-        max_width = 0
-        for id_of_photo in res['response']['items']:
-            for _dict in id_of_photo['sizes']:
-                width = _dict['width']
-                if _dict['width'] > max_width:
-                    max_width = _dict['width']
-                    photos.append(_dict['url'])
-                    for url in photos:
-                        pprint(YaUploader.upload(f'for_file/{id_of_photo["likes"]["count"]}.jpg',
-                                                 f'{id_of_photo["likes"]["count"]}.txt'))
-                        result = [f'{id_of_photo["likes"]["count"]}.txt', f'{id_of_photo["likes"]["count"]}.jpg',
-                                  f'type = {_dict["type"]}']
-                        pprint(result)
+    URL = 'https://api.vk.com/method/photos.get'
+    params = {
+        'owner_id': '273656415',
+        'album_id': 'profile',
+        'extended': 'likes',
+        'access_token': VK_token,
+        'v': '5.131'
+    }
+    res = requests.get(URL, params=params).json()
+    photos = []
+    dict_t = {}
+    max_width = 0
+    max_height = 0
+    for id_of_photo in res['response']['items']:
+        for _dict in id_of_photo['sizes']:
+            if _dict['width'] > max_width and _dict['height'] > max_height:
+                max_width = _dict['width']
+                max_height = _dict['height']
+            else:
+                max_width += _dict['width']
+                max_height += _dict['height']
+        dict_t[_dict['url']] = [_dict['width'], _dict['height']]
+        files = sorted(dict_t, key=dict_t.get, reverse=True)[:5]
+        for url in files:
+            with open(f'{id_of_photo["likes"]["count"]}.txt', 'w') as photo:
+                photo.write(_dict['url'])
+        pprint(
+            YaUploader.upload(f'{id_of_photo["likes"]["count"]}.txt', f'{id_of_photo["likes"]["count"]}.txt'))
+        result = [f'{id_of_photo["likes"]["count"]}.txt', f'{id_of_photo["likes"]["count"]}.jpg',
+                  f'type = {_dict["type"]}']
+        pprint(result)
