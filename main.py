@@ -19,13 +19,16 @@ class YaUploader:
         response = requests.get(upload_url, headers=headers, params=params)
         return response.json()
 
-    def upload(self, file_path, name_of_file):
-        href = self.link_for_upload(file_path=file_path).get("href", "")
-        requests.put(href, data=open(name_of_file, 'rb'))
+    def upload(self, list_of_files, ph_type):
+        href = self.link_for_upload(file_path=f'{id_of_photo["likes"]["count"]}.jpg').get("href", "")
+        for certain_file in list_of_files:
+            requests.put(href, certain_file)
+            result = [f'{id_of_photo["likes"]["count"]}.jpg', f'{id_of_photo["likes"]["count"]}.jpg', ph_type]
+            pprint(result)
 
 
 if __name__ == '__main__':
-    token = 'Впишите свой токен я Яндекс Полигона'
+    token = 'Токен Яндекс диска'
     YaUploader = YaUploader(token)
     with open('token.txt', 'r') as f:
         VK_token = f.read().strip()
@@ -40,6 +43,7 @@ if __name__ == '__main__':
     res = requests.get(URL, params=params).json()
     photos = []
     dict_t = {}
+    inf_photo = []
     max_width = 0
     max_height = 0
     for id_of_photo in res['response']['items']:
@@ -50,13 +54,12 @@ if __name__ == '__main__':
             else:
                 max_width += _dict['width']
                 max_height += _dict['height']
+                type_photo = _dict["type"]
         dict_t[_dict['url']] = [_dict['width'], _dict['height']]
         files = sorted(dict_t, key=dict_t.get, reverse=True)[:5]
-        for url in files:
-            with open(f'{id_of_photo["likes"]["count"]}.txt', 'w') as photo:
-                photo.write(_dict['url'])
-        pprint(
-            YaUploader.upload(f'{id_of_photo["likes"]["count"]}.txt', f'{id_of_photo["likes"]["count"]}.txt'))
-        result = [f'{id_of_photo["likes"]["count"]}.txt', f'{id_of_photo["likes"]["count"]}.jpg',
-                  f'type = {_dict["type"]}']
-        pprint(result)
+        # for file in files:
+        #     inf_photo = [f'{id_of_photo["likes"]["count"]}.jpg']
+        #     inf_photo.append(inf_photo)
+    # pprint(inf_photo)
+    # pprint(files)
+    #     pprint(YaUploader.upload(files, type_photo))
