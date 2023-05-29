@@ -1,9 +1,9 @@
 import requests as requests
-from pprint import pprint
 
 
 class YaUploader:
-    def __init__(self, token: str):
+
+    def init(self, token: str):
         self.token = token
 
     def get_headers(self):
@@ -19,19 +19,17 @@ class YaUploader:
         response = requests.get(upload_url, headers=headers, params=params)
         return response.json()
 
-    def upload(self, list_of_files, ph_type):
-        href = self.link_for_upload(file_path=f'{id_of_photo["likes"]["count"]}.jpg').get("href", "")
-        for certain_file in list_of_files:
-            requests.put(href, certain_file)
-            result = [f'{id_of_photo["likes"]["count"]}.jpg', f'{id_of_photo["likes"]["count"]}.jpg', ph_type]
-            pprint(result)
+    def upload(self, file_path, name_of_file):
+        href = self.link_for_upload(file_path=file_path).get("href", "")
+        p = requests.get(name_of_file)
+        files = {'file': p.content}
+        requests.put(href, files=files)
 
 
 if __name__ == '__main__':
-    token = 'Токен Яндекс диска'
+    token = ''
     YaUploader = YaUploader(token)
-    with open('token.txt', 'r') as f:
-        VK_token = f.read().strip()
+    VK_token = ''
     URL = 'https://api.vk.com/method/photos.get'
     params = {
         'owner_id': '273656415',
@@ -42,24 +40,33 @@ if __name__ == '__main__':
     }
     res = requests.get(URL, params=params).json()
     photos = []
-    dict_t = {}
-    inf_photo = []
-    max_width = 0
-    max_height = 0
+
     for id_of_photo in res['response']['items']:
         for _dict in id_of_photo['sizes']:
-            if _dict['width'] > max_width and _dict['height'] > max_height:
-                max_width = _dict['width']
-                max_height = _dict['height']
-            else:
-                max_width += _dict['width']
-                max_height += _dict['height']
-                type_photo = _dict["type"]
-        dict_t[_dict['url']] = [_dict['width'], _dict['height']]
-        files = sorted(dict_t, key=dict_t.get, reverse=True)[:5]
-        # for file in files:
-        #     inf_photo = [f'{id_of_photo["likes"]["count"]}.jpg']
-        #     inf_photo.append(inf_photo)
-    # pprint(inf_photo)
-    # pprint(files)
-    #     pprint(YaUploader.upload(files, type_photo))
+            photos.append([_dict, id_of_photo["likes"]["count"], id_of_photo["date"]])
+
+    res_sorted = sorted(photos, key=lambda x: x[0]['width'] * x[0]['height'], reverse=True)
+    bigger_photo = []
+    for i in range(5):
+        bigger_photo.append(res_sorted[i])
+
+    list_to_load = []
+    names = []
+
+    for i in range(5):
+        now_name = bigger_photo[i][1]
+        for j in range(5):
+            if i != j and now_name == bigger_photo[j][1]:
+                if i < j:
+                    bigger_photo[j][1] = str(bigger_photo[j][1]) + "-" + str(bigger_photo[j][2])
+                else:
+                    bigger_photo[i][1] = str(bigger_photo[i][1]) + "-" + str(bigger_photo[i][2])
+
+    print("[")
+    for i in range(5):
+        print('{' + '\n"file_name" : "' + str(bigger_photo[i][1]) + '.jpg"' + '\n"size" : "' + str(
+            bigger_photo[i][0]["type"]) + '"\n},')
+    print("]")
+
+    for i in range(5):
+        YaUploader.upload(str(bigger_photo[i][1]) + ".jpg", str(bigger_photo[i][0]["url"]))
