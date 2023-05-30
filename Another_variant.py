@@ -14,12 +14,12 @@ class YaUploader:
             'Authorization': f'OAuth {self.token}'
         }
 
-    def upload(self, href):
-        requests.post(href)
+    def upload(self, file_path, href):
+        requests.post(href, file_path)
 
 
 if __name__ == '__main__':
-    token = ''
+    token = 'y0_AgAAAABOlSzuAADLWwAAAADedvFOGMSY-iWyQIKTy5K88nhi30LnL90'
     YaUploader = YaUploader(token)
     with open('token.txt', 'r') as f:
         VK_token = f.read().strip()
@@ -52,5 +52,5 @@ if __name__ == '__main__':
     for photo_name in list(dict_name.keys()):
         for photo_url in list(dict_name.values()):
             result = [f'name of file: {photo_name}, type = {_dict["type"]}']
-        pprint(YaUploader.upload(photo_url))
+        pprint(YaUploader.upload(photo_name, photo_url))
         pprint(result)
