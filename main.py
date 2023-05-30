@@ -3,7 +3,7 @@ import requests as requests
 
 class YaUploader:
 
-    def init(self, token: str):
+    def __init__(self, token: str):
         self.token = token
 
     def get_headers(self):
